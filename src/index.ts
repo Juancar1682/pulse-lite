@@ -2,13 +2,20 @@ import express from "express";
 
 const app = express();
 
-app.get("/vitals", (req, res) =>
-  res.json({
-    bp: 100,
-    conciousness: true,
-    heartRate: 65,
-    blodOxygen: 98,
-  }),
-);
+interface Vitals {
+  bp: number;
+  consciousness: boolean;
+  heartRate: number;
+  bloodOxygen: number;
+}
+
+const juanVitals: Vitals = {
+  bp: 100,
+  consciousness: true,
+  heartRate: 65,
+  bloodOxygen: 98,
+};
+
+app.get("/vitals", (req, res) => res.json(juanVitals));
 
 app.listen(3030, () => console.log("server running in PORT 3030"));
