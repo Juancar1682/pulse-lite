@@ -1,0 +1,27 @@
+{
+  "name": "pulse-lite",
+  "version": "1.0.0",
+  "description": "A real-time patient vitals monitor — single patient, single user, built deliberately.",
+  "homepage": "https://github.com/Juancar1682/pulse-lite#readme",
+  "bugs": {
+    "url": "https://github.com/Juancar1682/pulse-lite/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Juancar1682/pulse-lite.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "express": "^5.2.1",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3"
+  }
+}
