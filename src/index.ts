@@ -31,10 +31,11 @@ app.post("/patient", async (req, res) => {
   if (bloodOxygen < 75 || bloodOxygen > 100) {
     return res.status(400).json("Invalid bloodOxygen number");
   }
-  res.json(
-    (
-      await pool.query(
-        `INSERT INTO "vitals" (
+  try {
+    res.json(
+      (
+        await pool.query(
+          `INSERT INTO "vitals" (
         "name", 
         "age", 
         "consciousness", 
@@ -50,10 +51,13 @@ app.post("/patient", async (req, res) => {
        $6
     )
     RETURNING *`,
-        [name, age, consciousness, bp, heartRate, bloodOxygen],
-      )
-    ).rows[0],
-  );
+          [name, age, consciousness, bp, heartRate, bloodOxygen],
+        )
+      ).rows[0],
+    );
+  } catch (err) {
+    res.status(500).json("500 Internal Server Error");
+  }
 });
 
 app.get("/vitals", async (req, res) =>
