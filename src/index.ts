@@ -1,6 +1,7 @@
 import express from "express";
 import env from "dotenv";
 import { Pool } from "pg";
+import cors from "cors";
 
 env.config();
 const db = process.env.DATABASE_URL;
@@ -16,6 +17,7 @@ interface Vitals {
 }
 
 app.use(express.json());
+app.use(cors());
 
 app.post("/patient", async (req, res) => {
   const { name, age, consciousness, bp, heartRate, bloodOxygen } = req.body;
