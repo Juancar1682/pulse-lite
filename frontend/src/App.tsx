@@ -64,6 +64,14 @@ export default function App() {
             },
           );
           setVitals([...vitals, await response.json()]);
+          setNewPatient({
+            name: "",
+            age: 0,
+            bp: 0,
+            consciousness: false,
+            heartRate: 0,
+            bloodOxygen: 0,
+          });
         }}
       >
         <input
