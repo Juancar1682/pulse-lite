@@ -14,7 +14,7 @@ export default function App() {
   const [vitals, setVitals] = useState<Vitals[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:3030/vitals")
+    fetch("https://pulse-lite.onrender.com/vitals")
       .then((res) => res.json())
       .then((data) => setVitals(data));
   }, []);
