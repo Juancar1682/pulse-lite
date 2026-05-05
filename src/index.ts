@@ -66,4 +66,48 @@ app.get("/vitals", async (req, res) =>
   res.json((await pool.query('SELECT * from "vitals"')).rows),
 );
 
+app.put("/patient/:id", async (req, res) => {
+  const patientId = req.params.id;
+  const { name, age, consciousness, bp, heartRate, bloodOxygen } = req.body;
+  try {
+    res.json(
+      (
+        await pool.query(
+          `UPDATE "vitals"
+        SET 
+        "name" = $1, 
+        "age" = $2, 
+        "consciousness" = $3, 
+        "bp" = $4, 
+        "heartRate" = $5, 
+        "bloodOxygen" = $6
+        WHERE id = $7
+        RETURNING *`,
+          [name, age, consciousness, bp, heartRate, bloodOxygen, patientId],
+        )
+      ).rows[0],
+    );
+  } catch (err) {
+    res.status(500).json("500 Internal Server Error");
+  }
+});
+
+app.delete("/patient/:id", async (req, res) => {
+  const paramsId = req.params.id;
+  try {
+    res.json(
+      (
+        await pool.query(
+          `DELETE from "vitals"
+            WHERE id = $1
+            RETURNING *`,
+          [paramsId],
+        )
+      ).rows[0],
+    );
+  } catch (err) {
+    res.status(500).json("500 Internal Server Eror");
+  }
+});
+
 app.listen(3030, () => console.log("server running in PORT 3030"));
