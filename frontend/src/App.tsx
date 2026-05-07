@@ -44,6 +44,15 @@ export default function App() {
   });
 
   useEffect(() => {
+    const ws = new WebSocket(import.meta.env.VITE_WS_URL);
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      setVitals((prev) => [...prev, data]);
+    };
+    return () => ws.close();
+  }, []);
+
+  useEffect(() => {
     fetch("https://pulse-lite.onrender.com/vitals")
       .then((res) => res.json())
       .then((data) => setVitals(data));

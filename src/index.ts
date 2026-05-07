@@ -2,12 +2,19 @@ import express from "express";
 import env from "dotenv";
 import { Pool } from "pg";
 import cors from "cors";
+import http from "http";
+import { WebSocketServer } from "ws";
 
 env.config();
 const db = process.env.DATABASE_URL;
 const pool = new Pool({ connectionString: db });
 
 const app = express();
+
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
+server.listen(3030, () => console.log("server running in PORT 3030"));
+wss.on("connection", (ws) => console.log("Websocket is on"));
 
 interface Vitals {
   bp: number;
@@ -21,6 +28,16 @@ app.use(cors());
 
 app.post("/patient", async (req, res) => {
   const { name, age, consciousness, bp, heartRate, bloodOxygen } = req.body;
+  if (
+    !age ||
+    !name ||
+    !bp ||
+    !heartRate ||
+    !bloodOxygen ||
+    consciousness == null
+  ) {
+    return res.status(400).json("All fields are required");
+  }
   if (age < 0 || age > 120) {
     return res.status(400).json("Invalid age number");
   }
@@ -34,10 +51,9 @@ app.post("/patient", async (req, res) => {
     return res.status(400).json("Invalid bloodOxygen number");
   }
   try {
-    res.json(
-      (
-        await pool.query(
-          `INSERT INTO "vitals" (
+    const newPatient = (
+      await pool.query(
+        `INSERT INTO "vitals" (
         "name", 
         "age", 
         "consciousness", 
@@ -53,10 +69,13 @@ app.post("/patient", async (req, res) => {
        $6
     )
     RETURNING *`,
-          [name, age, consciousness, bp, heartRate, bloodOxygen],
-        )
-      ).rows[0],
-    );
+        [name, age, consciousness, bp, heartRate, bloodOxygen],
+      )
+    ).rows[0];
+    res.json(newPatient);
+    for (const client of wss.clients) {
+      client.send(JSON.stringify(newPatient));
+    }
   } catch (err) {
     res.status(500).json("500 Internal Server Error");
   }
@@ -109,5 +128,3 @@ app.delete("/patient/:id", async (req, res) => {
     res.status(500).json("500 Internal Server Eror");
   }
 });
-
-app.listen(3030, () => console.log("server running in PORT 3030"));
