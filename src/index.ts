@@ -3,7 +3,7 @@ import env from "dotenv";
 import { Pool } from "pg";
 import cors from "cors";
 import http from "http";
-import { WebSocketServer } from "ws";
+import { WebSocketServer, WebSocket } from "ws";
 
 env.config();
 const db = process.env.DATABASE_URL;
@@ -29,11 +29,11 @@ app.use(cors());
 app.post("/patient", async (req, res) => {
   const { name, age, consciousness, bp, heartRate, bloodOxygen } = req.body;
   if (
-    !age ||
-    !name ||
-    !bp ||
-    !heartRate ||
-    !bloodOxygen ||
+    age == null ||
+    name == null ||
+    bp == null ||
+    heartRate == null ||
+    bloodOxygen == null ||
     consciousness == null
   ) {
     return res.status(400).json("All fields are required");
@@ -74,7 +74,9 @@ app.post("/patient", async (req, res) => {
     ).rows[0];
     res.json(newPatient);
     for (const client of wss.clients) {
-      client.send(JSON.stringify(newPatient));
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify(newPatient));
+      }
     }
   } catch (err) {
     res.status(500).json("500 Internal Server Error");
