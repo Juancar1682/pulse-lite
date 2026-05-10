@@ -75,7 +75,7 @@ app.post("/patient", async (req, res) => {
     res.json(newPatient);
     for (const client of wss.clients) {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify(newPatient));
+        client.send(JSON.stringify({ type: "created", data: newPatient }));
       }
     }
   } catch (err) {
@@ -91,10 +91,9 @@ app.put("/patient/:id", async (req, res) => {
   const patientId = req.params.id;
   const { name, age, consciousness, bp, heartRate, bloodOxygen } = req.body;
   try {
-    res.json(
-      (
-        await pool.query(
-          `UPDATE "vitals"
+    const updatePatient = (
+      await pool.query(
+        `UPDATE "vitals"
         SET 
         "name" = $1, 
         "age" = $2, 
@@ -104,10 +103,15 @@ app.put("/patient/:id", async (req, res) => {
         "bloodOxygen" = $6
         WHERE id = $7
         RETURNING *`,
-          [name, age, consciousness, bp, heartRate, bloodOxygen, patientId],
-        )
-      ).rows[0],
-    );
+        [name, age, consciousness, bp, heartRate, bloodOxygen, patientId],
+      )
+    ).rows[0];
+    res.json(updatePatient);
+    for (const client of wss.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ type: "updated", data: updatePatient }));
+      }
+    }
   } catch (err) {
     res.status(500).json("500 Internal Server Error");
   }
@@ -116,16 +120,20 @@ app.put("/patient/:id", async (req, res) => {
 app.delete("/patient/:id", async (req, res) => {
   const paramsId = req.params.id;
   try {
-    res.json(
-      (
-        await pool.query(
-          `DELETE from "vitals"
+    const deletePatient = (
+      await pool.query(
+        `DELETE from "vitals"
             WHERE id = $1
             RETURNING *`,
-          [paramsId],
-        )
-      ).rows[0],
-    );
+        [paramsId],
+      )
+    ).rows[0];
+    res.json(deletePatient);
+    for (const client of wss.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ type: "deleted", data: paramsId }));
+      }
+    }
   } catch (err) {
     res.status(500).json("500 Internal Server Eror");
   }

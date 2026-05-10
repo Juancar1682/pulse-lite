@@ -46,14 +46,31 @@ export default function App() {
   useEffect(() => {
     const ws = new WebSocket(import.meta.env.VITE_WS_URL);
     ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      setVitals((prev) => [...prev, data]);
+      const { data, type } = JSON.parse(event.data);
+
+      if (type === "created") {
+        setVitals((prev) => [...prev, data]);
+      }
+
+      if (type === "updated") {
+        setVitals((prev) =>
+          prev.map((vit) => {
+            if (vit.id === data.id) {
+              return data;
+            } else return vit;
+          }),
+        );
+      }
+
+      if (type === "deleted") {
+        setVitals((prev) => prev.filter((vit) => vit.id !== Number(data)));
+      }
     };
     return () => ws.close();
   }, []);
 
   useEffect(() => {
-    fetch("https://pulse-lite.onrender.com/vitals")
+    fetch(import.meta.env.VITE_API_URL + `/vitals`)
       .then((res) => res.json())
       .then((data) => setVitals(data));
   }, []);
@@ -82,7 +99,7 @@ export default function App() {
                   className="bg-red-200 p-1 px-2 rounded-md text-red-400 text-sm"
                   onClick={async () => {
                     await fetch(
-                      `https://pulse-lite.onrender.com/patient/${v.id}`,
+                      import.meta.env.VITE_API_URL + `/patient/${v.id}`,
                       {
                         method: "DELETE",
                         headers: { "Content-Type": "application/json" },
@@ -126,7 +143,7 @@ export default function App() {
                   e.preventDefault();
 
                   const response = await fetch(
-                    `https://pulse-lite.onrender.com/patient/${v.id}`,
+                    import.meta.env.VITE_API_URL + `/patient/${v.id}`,
                     {
                       method: "PUT",
                       headers: { "Content-Type": "application/json" },
@@ -248,7 +265,7 @@ export default function App() {
             e.preventDefault();
 
             const response = await fetch(
-              "https://pulse-lite.onrender.com/patient",
+              import.meta.env.VITE_API_URL + `/patient`,
               {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
