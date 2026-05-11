@@ -144,7 +144,14 @@ export default function App() {
                 className="grid grid-cols-2 p-4 border-2 rounded-lg shadow-md m-4"
                 onSubmit={async (e) => {
                   e.preventDefault();
-
+                  if (
+                    isNaN(newPatient.age) ||
+                    isNaN(newPatient.bp) ||
+                    isNaN(newPatient.heartRate) ||
+                    isNaN(newPatient.bloodOxygen)
+                  ) {
+                    return;
+                  }
                   const response = await fetch(
                     import.meta.env.VITE_API_URL + `/patient/${v.id}`,
                     {
@@ -175,6 +182,7 @@ export default function App() {
                   <input
                     className="w-15 rounded-sm border pl-1 text-sm py-1 text-gray-600"
                     value={editPatient.age}
+                    type="number"
                     onChange={(e) =>
                       setEditPatient({
                         ...editPatient,
@@ -189,6 +197,7 @@ export default function App() {
                   <input
                     className="w-15 rounded-sm border pl-1 text-sm py-1 text-gray-600"
                     value={editPatient.bp}
+                    type="number"
                     onChange={(e) =>
                       setEditPatient({
                         ...editPatient,
@@ -218,6 +227,7 @@ export default function App() {
                   <input
                     className="w-15 rounded-sm border pl-1 text-sm py-1 text-gray-600"
                     value={editPatient.heartRate}
+                    type="number"
                     onChange={(e) =>
                       setEditPatient({
                         ...editPatient,
@@ -232,6 +242,7 @@ export default function App() {
                   <input
                     className="w-15 rounded-sm border pl-1 text-sm py-1 text-gray-600"
                     value={editPatient.bloodOxygen}
+                    type="number"
                     onChange={(e) =>
                       setEditPatient({
                         ...editPatient,
@@ -258,7 +269,14 @@ export default function App() {
           className="grid grid-cols-2 p-4 border-2 rounded-lg shadow-md m-4"
           onSubmit={async (e) => {
             e.preventDefault();
-
+            if (
+              isNaN(newPatient.age) ||
+              isNaN(newPatient.bp) ||
+              isNaN(newPatient.heartRate) ||
+              isNaN(newPatient.bloodOxygen)
+            ) {
+              return;
+            }
             await fetch(import.meta.env.VITE_API_URL + `/patient`, {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -292,6 +310,7 @@ export default function App() {
             <input
               className="w-15 rounded-sm border pl-1 text-sm py-1 text-gray-600"
               value={newPatient.age}
+              type="number"
               onChange={(e) =>
                 setNewPatient({ ...newPatient, age: Number(e.target.value) })
               }
@@ -303,6 +322,7 @@ export default function App() {
             <input
               className="w-15 rounded-sm border pl-1 text-sm py-1 text-gray-600"
               value={newPatient.bp}
+              type="number"
               onChange={(e) =>
                 setNewPatient({
                   ...newPatient,
@@ -332,6 +352,7 @@ export default function App() {
             <input
               className="w-15 rounded-sm border pl-1 text-sm py-1 text-gray-600"
               value={newPatient.heartRate}
+              type="number"
               onChange={(e) =>
                 setNewPatient({
                   ...newPatient,
@@ -346,6 +367,7 @@ export default function App() {
             <input
               className="w-15 rounded-sm border pl-1 text-sm py-1 text-gray-600"
               value={newPatient.bloodOxygen}
+              type="number"
               onChange={(e) =>
                 setNewPatient({
                   ...newPatient,

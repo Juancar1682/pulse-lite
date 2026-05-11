@@ -13,3 +13,5 @@ Delete SetVitals from PUT form onsubmit to let the websocket handle all logic li
 Moved the types outside of the app component, because vitals live regardless of the component.
 
 Replaced ul tags with article and li with p tags for a11y, and screen reading. Is going to used correct HTMl semantics for screen reader a11y(accesibility).
+
+Add error and loading state to hadle conectivity, and to show the user in which state they are.
