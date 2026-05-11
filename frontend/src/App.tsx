@@ -104,7 +104,6 @@ export default function App() {
                         headers: { "Content-Type": "application/json" },
                       },
                     );
-                    setVitals(vitals.filter((vit) => vit.id !== v.id));
                   }}
                 >
                   Delete
@@ -263,15 +262,12 @@ export default function App() {
           onSubmit={async (e) => {
             e.preventDefault();
 
-            const response = await fetch(
-              import.meta.env.VITE_API_URL + `/patient`,
-              {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newPatient),
-              },
-            );
-            setVitals([...vitals, await response.json()]);
+            await fetch(import.meta.env.VITE_API_URL + `/patient`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(newPatient),
+            });
+
             setNewPatient({
               name: "",
               age: 0,
