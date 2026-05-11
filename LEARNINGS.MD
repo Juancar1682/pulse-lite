@@ -6,6 +6,8 @@ Addded the open WebSocket connection to PUT and DELETE, also added the import.me
 
 Added a message when connected to the frontend, because if the websocket took longer than the get request it would've miss information, also removed the useEffect with get because of it was racing state with the websocket setVitals.
 
-Took out the set vitals in the DELETE and POST request, and let the server handle all updates of state in real time for accuracy purposes and for it to not overwrtie the state"
+Took out the set vitals in the DELETE and POST request, and let the server handle all updates of state in real time for accuracy purposes and for it to not overwrtie the state.
 
-Delete SetVitals from PUT form onsubmit to let the websocket handle all logic live
+Delete SetVitals from PUT form onsubmit to let the websocket handle all logic live.
+
+Moved the types outside of the app component, because vitals live regardless of the component.

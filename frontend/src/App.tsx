@@ -77,61 +77,58 @@ export default function App() {
     <>
       <div className="bg-gray-200 flex flex-col gap-4">
         {vitals.map((v) => (
-          <ul
+          <article
             key={v.id}
             className="flex flex-col p-4 border-2 rounded-lg shadow-md m-4"
           >
             <div className="flex gap-2 items-end mb-2">
-              <li className="text-2xl font-bold text-gray-700">{v.name}</li>
-              <li className="text-gray-400">Age: {v.age}</li>
+              <p className="text-2xl font-bold text-gray-700">{v.name}</p>
+              <p className="text-gray-400">Age: {v.age}</p>
             </div>
 
             <div className="grid grid-cols-2 text-mist-600 font-light">
-              <li>Blood Preassure: {v.bp}</li>
-              <li>Consciousness: {v.consciousness ? "Yes" : "No"}</li>
-              <li>Heart Rate: {v.heartRate}</li>
-              <li>Blood Oxygen: {v.bloodOxygen}</li>
+              <p>Blood Preassure: {v.bp}</p>
+              <p>Consciousness: {v.consciousness ? "Yes" : "No"}</p>
+              <p>Heart Rate: {v.heartRate}</p>
+              <p>Blood Oxygen: {v.bloodOxygen}</p>
             </div>
             <div className="flex gap-4 mt-2">
-              <li>
-                <button
-                  className="bg-red-200 p-1 px-2 rounded-md text-red-400 text-sm"
-                  onClick={async () => {
-                    await fetch(
-                      import.meta.env.VITE_API_URL + `/patient/${v.id}`,
-                      {
-                        method: "DELETE",
-                        headers: { "Content-Type": "application/json" },
-                      },
-                    );
-                  }}
-                >
-                  Delete
-                </button>
-              </li>
-              <li className="">
-                <button
-                  className="flex felx-row items-center gap-1 bg-slate-300 p-1 px-2 rounded-md text-slate-500 text-sm"
-                  onClick={async () => {
-                    if (edit === v.id) {
-                      setEdit(null);
-                    } else {
-                      setEdit(v.id);
-                    }
-                    setEditPatient({
-                      name: v.name,
-                      age: v.age,
-                      bp: v.bp,
-                      consciousness: v.consciousness,
-                      heartRate: v.heartRate,
-                      bloodOxygen: v.bloodOxygen,
-                    });
-                  }}
-                >
-                  <LuPencil className="text-[11px]" />
-                  Edit
-                </button>
-              </li>
+              <button
+                className="bg-red-200 p-1 px-2 rounded-md text-red-400 text-sm"
+                onClick={async () => {
+                  await fetch(
+                    import.meta.env.VITE_API_URL + `/patient/${v.id}`,
+                    {
+                      method: "DELETE",
+                      headers: { "Content-Type": "application/json" },
+                    },
+                  );
+                }}
+              >
+                Delete
+              </button>
+
+              <button
+                className="flex felx-row items-center gap-1 bg-slate-300 p-1 px-2 rounded-md text-slate-500 text-sm"
+                onClick={async () => {
+                  if (edit === v.id) {
+                    setEdit(null);
+                  } else {
+                    setEdit(v.id);
+                  }
+                  setEditPatient({
+                    name: v.name,
+                    age: v.age,
+                    bp: v.bp,
+                    consciousness: v.consciousness,
+                    heartRate: v.heartRate,
+                    bloodOxygen: v.bloodOxygen,
+                  });
+                }}
+              >
+                <LuPencil className="text-[11px]" />
+                Edit
+              </button>
             </div>
 
             {edit === v.id && (
@@ -246,7 +243,7 @@ export default function App() {
                 </div>
               </form>
             )}
-          </ul>
+          </article>
         ))}
 
         <form
