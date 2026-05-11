@@ -49,7 +49,7 @@ export default function App() {
   useEffect(() => {
     setLoading(true);
     let delay = 1000;
-    let ws = undefined;
+    let ws: WebSocket = undefined;
     function connect() {
       ws = new WebSocket(import.meta.env.VITE_WS_URL);
 
