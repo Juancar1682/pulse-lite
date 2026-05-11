@@ -4,6 +4,7 @@ import { Pool } from "pg";
 import cors from "cors";
 import http from "http";
 import { WebSocketServer, WebSocket } from "ws";
+import { z } from "zod";
 
 env.config();
 const db = process.env.DATABASE_URL;
@@ -23,40 +24,27 @@ wss.on("connection", async (ws) =>
   ),
 );
 
-interface Vitals {
-  bp: number;
-  consciousness: boolean;
-  heartRate: number;
-  bloodOxygen: number;
-}
+const VitalsSchema = z.object({
+  name: z.string(),
+  age: z.number().min(0).max(120),
+  bp: z.number().min(60).max(180),
+  consciousness: z.boolean(),
+  heartRate: z.number().min(60).max(180),
+  bloodOxygen: z.number().min(75).max(100),
+});
+
+type Vitals = z.infer<typeof VitalsSchema>;
 
 app.use(express.json());
 app.use(cors());
 
 app.post("/patient", async (req, res) => {
-  const { name, age, consciousness, bp, heartRate, bloodOxygen } = req.body;
-  if (
-    age == null ||
-    name == null ||
-    bp == null ||
-    heartRate == null ||
-    bloodOxygen == null ||
-    consciousness == null
-  ) {
-    return res.status(400).json("All fields are required");
+  const obj = VitalsSchema.safeParse(req.body);
+
+  if (obj.success === false) {
+    return res.status(400).json("Invalid field input");
   }
-  if (age < 0 || age > 120) {
-    return res.status(400).json("Invalid age number");
-  }
-  if (bp < 60 || bp > 160) {
-    return res.status(400).json("Invalid bp number");
-  }
-  if (heartRate < 60 || heartRate > 180) {
-    return res.status(400).json("Invalid heartRate number");
-  }
-  if (bloodOxygen < 75 || bloodOxygen > 100) {
-    return res.status(400).json("Invalid bloodOxygen number");
-  }
+  const { name, age, consciousness, bp, heartRate, bloodOxygen } = obj.data;
   try {
     const newPatient = (
       await pool.query(
@@ -96,7 +84,11 @@ app.get("/vitals", async (req, res) =>
 
 app.put("/patient/:id", async (req, res) => {
   const patientId = req.params.id;
-  const { name, age, consciousness, bp, heartRate, bloodOxygen } = req.body;
+  const obj = VitalsSchema.safeParse(req.body);
+  if (obj.success === false) {
+    return res.status(400).json("Invalid Input Data");
+  }
+  const { name, age, consciousness, bp, heartRate, bloodOxygen } = obj.data;
   try {
     const updatePatient = (
       await pool.query(

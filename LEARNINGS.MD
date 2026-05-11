@@ -17,3 +17,5 @@ Replaced ul tags with article and li with p tags for a11y, and screen reading. I
 Add error and loading state to hadle conectivity, and to show the user in which state they are.
 
 Add type number to all numeric input to avoid bad inputs also add a check to see if any numeric inputs are nan at submitting level for safety.
+
+Add exponential backoff for reconnection retryn to avoid infinte retries and overloading the user connection.
