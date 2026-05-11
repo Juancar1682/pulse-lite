@@ -87,7 +87,7 @@ export default function App() {
       };
     }
     connect();
-    return () => ws.close();
+    return () => ws?.close();
   }, []);
 
   return (
