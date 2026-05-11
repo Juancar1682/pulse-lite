@@ -43,13 +43,18 @@ export default function App() {
     bloodOxygen: 0,
   });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
   useEffect(() => {
+    setLoading(true);
     const ws = new WebSocket(import.meta.env.VITE_WS_URL);
     ws.onmessage = (event) => {
       const { data, type } = JSON.parse(event.data);
 
       if (type === "connected") {
         setVitals(data);
+        setLoading(false);
       }
 
       if (type === "created") {
@@ -70,11 +75,14 @@ export default function App() {
         setVitals((prev) => prev.filter((vit) => vit.id !== Number(data)));
       }
     };
+    ws.onerror = () => setError(true);
     return () => ws.close();
   }, []);
 
   return (
     <>
+      {loading && <p>Connecting...</p>}
+      {error && <p>Live connection failed...</p>}
       <div className="bg-gray-200 flex flex-col gap-4">
         {vitals.map((v) => (
           <article

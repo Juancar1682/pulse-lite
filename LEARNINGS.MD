@@ -11,3 +11,5 @@ Took out the set vitals in the DELETE and POST request, and let the server handl
 Delete SetVitals from PUT form onsubmit to let the websocket handle all logic live.
 
 Moved the types outside of the app component, because vitals live regardless of the component.
+
+Replaced ul tags with article and li with p tags for a11y, and screen reading. Is going to used correct HTMl semantics for screen reader a11y(accesibility).
