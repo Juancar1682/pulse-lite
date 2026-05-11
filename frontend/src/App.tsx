@@ -48,6 +48,10 @@ export default function App() {
     ws.onmessage = (event) => {
       const { data, type } = JSON.parse(event.data);
 
+      if (type === "connected") {
+        setVitals(data);
+      }
+
       if (type === "created") {
         setVitals((prev) => [...prev, data]);
       }
@@ -69,11 +73,6 @@ export default function App() {
     return () => ws.close();
   }, []);
 
-  useEffect(() => {
-    fetch(import.meta.env.VITE_API_URL + `/vitals`)
-      .then((res) => res.json())
-      .then((data) => setVitals(data));
-  }, []);
   return (
     <>
       <div className="bg-gray-200 flex flex-col gap-4">

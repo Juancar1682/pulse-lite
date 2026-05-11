@@ -14,7 +14,14 @@ const app = express();
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 server.listen(3030, () => console.log("server running in PORT 3030"));
-wss.on("connection", (ws) => console.log("Websocket is on"));
+wss.on("connection", async (ws) =>
+  ws.send(
+    JSON.stringify({
+      type: "connected",
+      data: (await pool.query('SELECT * from "vitals"')).rows,
+    }),
+  ),
+);
 
 interface Vitals {
   bp: number;
