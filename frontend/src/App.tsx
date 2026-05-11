@@ -1,26 +1,26 @@
 import { useState, useEffect } from "react";
 import { LuPencil } from "react-icons/lu";
 
+interface Vitals {
+  id: number;
+  name: string;
+  age: number;
+  bp: number;
+  consciousness: boolean;
+  heartRate: number;
+  bloodOxygen: number;
+}
+
+interface NewPatient {
+  name: string;
+  age: number;
+  bp: number;
+  consciousness: boolean;
+  heartRate: number;
+  bloodOxygen: number;
+}
+
 export default function App() {
-  interface Vitals {
-    id: number;
-    name: string;
-    age: number;
-    bp: number;
-    consciousness: boolean;
-    heartRate: number;
-    bloodOxygen: number;
-  }
-
-  interface NewPatient {
-    name: string;
-    age: number;
-    bp: number;
-    consciousness: boolean;
-    heartRate: number;
-    bloodOxygen: number;
-  }
-
   const [vitals, setVitals] = useState<Vitals[]>([]);
 
   const [newPatient, setNewPatient] = useState<NewPatient>({
