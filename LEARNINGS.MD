@@ -15,3 +15,5 @@ Moved the types outside of the app component, because vitals live regardless of 
 Replaced ul tags with article and li with p tags for a11y, and screen reading. Is going to used correct HTMl semantics for screen reader a11y(accesibility).
 
 Add error and loading state to hadle conectivity, and to show the user in which state they are.
+
+Add type number to all numeric input to avoid bad inputs also add a check to see if any numeric inputs are nan at submitting level for safety.

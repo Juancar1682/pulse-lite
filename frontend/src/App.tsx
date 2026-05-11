@@ -48,34 +48,45 @@ export default function App() {
 
   useEffect(() => {
     setLoading(true);
-    const ws = new WebSocket(import.meta.env.VITE_WS_URL);
-    ws.onmessage = (event) => {
-      const { data, type } = JSON.parse(event.data);
+    let delay = 1000;
+    let ws = undefined;
+    function connect() {
+      ws = new WebSocket(import.meta.env.VITE_WS_URL);
 
-      if (type === "connected") {
-        setVitals(data);
-        setLoading(false);
-      }
+      ws.onmessage = (event) => {
+        const { data, type } = JSON.parse(event.data);
 
-      if (type === "created") {
-        setVitals((prev) => [...prev, data]);
-      }
+        if (type === "connected") {
+          setVitals(data);
+          setLoading(false);
+        }
 
-      if (type === "updated") {
-        setVitals((prev) =>
-          prev.map((vit) => {
-            if (vit.id === data.id) {
-              return data;
-            } else return vit;
-          }),
-        );
-      }
+        if (type === "created") {
+          setVitals((prev) => [...prev, data]);
+        }
 
-      if (type === "deleted") {
-        setVitals((prev) => prev.filter((vit) => vit.id !== Number(data)));
-      }
-    };
-    ws.onerror = () => setError(true);
+        if (type === "updated") {
+          setVitals((prev) =>
+            prev.map((vit) => {
+              if (vit.id === data.id) {
+                return data;
+              } else return vit;
+            }),
+          );
+        }
+
+        if (type === "deleted") {
+          setVitals((prev) => prev.filter((vit) => vit.id !== Number(data)));
+        }
+      };
+      ws.onerror = () => setError(true);
+
+      ws.onclose = () => {
+        delay = Math.min(delay * 2, 30000);
+        setTimeout(() => connect(), delay);
+      };
+    }
+    connect();
     return () => ws.close();
   }, []);
 
