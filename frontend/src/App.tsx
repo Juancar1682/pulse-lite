@@ -148,15 +148,7 @@ export default function App() {
                       body: JSON.stringify(editPatient),
                     },
                   );
-                  const data = await response.json();
-
-                  setVitals(
-                    vitals.map((vit) => {
-                      if (vit.id === v.id) {
-                        return data;
-                      } else return vit;
-                    }),
-                  );
+                  await response.json();
 
                   setEdit(null);
                 }}

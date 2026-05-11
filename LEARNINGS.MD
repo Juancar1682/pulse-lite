@@ -5,3 +5,5 @@ Encounter a bug in WebSocket, the logic was supposed to send to client no matter
 Addded the open WebSocket connection to PUT and DELETE, also added the import.meta to every part that used a hard-coded URL.
 
 Added a message when connected to the frontend, because if the websocket took longer than the get request it would've miss information, also removed the useEffect with get because of it was racing state with the websocket setVitals.
+
+Took out the set vitals in the DELETE and POST request, and let the server handle all updates of state in real time for accuracy purposes and for it to not overwrtie the state"
