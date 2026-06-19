@@ -19,3 +19,26 @@ Add error and loading state to hadle conectivity, and to show the user in which 
 Add type number to all numeric input to avoid bad inputs also add a check to see if any numeric inputs are nan at submitting level for safety.
 
 Add exponential backoff for reconnection retryn to avoid infinte retries and overloading the user connection.
+
+Add zod schema to check vitals in runtime, optimized for future input additions, avoiding manual checks every time an input is added.
+
+#What the difference is between a patients table and a vitals_readings table and why you split them
+patients now is the identity of the patient not the vitals, and the vitals show the vitals status of that specific patient
+
+#What a foreign key is and what ON DELETE CASCADE does
+A foreign key connects a column in one table to the primary key of another table. ON DELETE CASCADE means: if the parent row is deleted, all child rows that reference it are automatically deleted too. Example: delete a patient, and all their vitals_readings rows delete automatically.
+
+#What soft delete means and how deleted_at TIMESTAMP implements it
+Soft delete means the row stays in the database but is treated as deleted. deleted_at TIMESTAMP is NULL for active records and set to a timestamp when deleted. All queries filter WHERE deleted_at IS NULL so deleted patients don't appear in normal results, but the data is still there for audits or recovery.
+
+#What SERIAL actually does under the hood (you just saw it — nextval(...))
+it creates a sequence assigning in to nextval = next value eg. if 1 then 2
+
+#The DROP TABLE IF EXISTS pattern and why it matters for migrations
+is safer so if the table exist it dorps it but if it doesnt it continues with the migration instead of stopping it
+
+#The psql $DATABASE_URL -f schema.sql command
+export $(grep -v '^#' .env | xargs)
+psql $DATABASE_URL -f schema.sql
+
+ALTER TABLE modifies an existing table's structure without touching its data — used ALTER COLUMN time_reading SET DEFAULT NOW() to add a default timestamp to vitals_readings.

@@ -24,9 +24,21 @@ wss.on("connection", async (ws) =>
   ),
 );
 
-const VitalsSchema = z.object({
+// const VitalsSchema = z.object({
+//   name: z.string(),
+//   age: z.number().min(0).max(120),
+//   bp: z.number().min(60).max(180),
+//   consciousness: z.boolean(),
+//   heartRate: z.number().min(60).max(180),
+//   bloodOxygen: z.number().min(75).max(100),
+// });
+
+const PatientSchema = z.object({
   name: z.string(),
-  age: z.number().min(0).max(120),
+  dob: z.string().date(),
+});
+
+const VitalsSchema = z.object({
   bp: z.number().min(60).max(180),
   consciousness: z.boolean(),
   heartRate: z.number().min(60).max(180),
@@ -38,33 +50,25 @@ type Vitals = z.infer<typeof VitalsSchema>;
 app.use(express.json());
 app.use(cors());
 
-app.post("/patient", async (req, res) => {
-  const obj = VitalsSchema.safeParse(req.body);
+app.post("/patients", async (req, res) => {
+  const obj = PatientSchema.safeParse(req.body);
 
   if (obj.success === false) {
     return res.status(400).json("Invalid field input");
   }
-  const { name, age, consciousness, bp, heartRate, bloodOxygen } = obj.data;
+  const { name, dob } = obj.data;
   try {
     const newPatient = (
       await pool.query(
-        `INSERT INTO "vitals" (
+        `INSERT INTO "patients" (
         "name", 
-        "age", 
-        "consciousness", 
-        "bp", 
-        "heartRate", 
-        "bloodOxygen" )
+        "dob" )
        VALUES(
        $1,
-       $2,
-       $3,
-       $4,
-       $5,
-       $6
+       $2
     )
     RETURNING *`,
-        [name, age, consciousness, bp, heartRate, bloodOxygen],
+        [name, dob],
       )
     ).rows[0];
     res.json(newPatient);
@@ -77,6 +81,46 @@ app.post("/patient", async (req, res) => {
     res.status(500).json("500 Internal Server Error");
   }
 });
+
+// app.post("/patient", async (req, res) => {
+//   const obj = VitalsSchema.safeParse(req.body);
+
+//   if (obj.success === false) {
+//     return res.status(400).json("Invalid field input");
+//   }
+//   const { name, age, consciousness, bp, heartRate, bloodOxygen } = obj.data;
+//   try {
+//     const newPatient = (
+//       await pool.query(
+//         `INSERT INTO "vitals" (
+//         "name",
+//         "age",
+//         "consciousness",
+//         "bp",
+//         "heartRate",
+//         "bloodOxygen" )
+//        VALUES(
+//        $1,
+//        $2,
+//        $3,
+//        $4,
+//        $5,
+//        $6
+//     )
+//     RETURNING *`,
+//         [name, age, consciousness, bp, heartRate, bloodOxygen],
+//       )
+//     ).rows[0];
+//     res.json(newPatient);
+//     for (const client of wss.clients) {
+//       if (client.readyState === WebSocket.OPEN) {
+//         client.send(JSON.stringify({ type: "created", data: newPatient }));
+//       }
+//     }
+//   } catch (err) {
+//     res.status(500).json("500 Internal Server Error");
+//   }
+// });
 
 app.get("/vitals", async (req, res) =>
   res.json((await pool.query('SELECT * from "vitals"')).rows),

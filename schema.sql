@@ -1,0 +1,16 @@
+CREATE TABLE patients (
+id SERIAL PRIMARY KEY,
+name TEXT NOT NULL,
+dob DATE NOT NULL,
+created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+deleted_at TIMESTAMP
+);
+
+CREATE TABLE vitals_readings (
+id SERIAL PRIMARY KEY,
+patient_id INTEGER NOT NULL REFERENCES patients(id) ON DELETE CASCADE,
+bp INTEGER NOT NULL,
+heart_rate INTEGER NOT NULL,
+consciousness BOOLEAN NOT NULL,
+blood_oxygen INTEGER NOT NULL,
+time_reading TIMESTAMP NOT NULL );
