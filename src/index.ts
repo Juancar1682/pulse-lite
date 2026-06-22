@@ -82,6 +82,53 @@ app.post("/patients", async (req, res) => {
   }
 });
 
+app.post("/patients/:id/readings", async (req, res) => {
+  const patientId = Number(req.params.id);
+
+  const obj = VitalsSchema.safeParse(req.body);
+
+  if (isNaN(patientId)) {
+    return res.status(400).json("Invalid patient ID");
+  }
+  if (obj.success === false) {
+    return res.status(400).json("Invalid field input");
+  }
+
+  const { bp, consciousness, heartRate, bloodOxygen } = obj.data;
+  try {
+    const newVitals = (
+      await pool.query(
+        `INSERT INTO "vitals_readings" (
+          "patient_id",
+          "bp",
+          "consciousness",
+          "heart_rate",
+          "blood_oxygen"
+        )
+        VALUES(
+          $1,
+          $2,
+          $3,
+          $4,
+          $5
+        )
+        RETURNING *`,
+        [patientId, bp, consciousness, heartRate, bloodOxygen],
+      )
+    ).rows[0];
+    res.json(newVitals);
+    for (const client of wss.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(
+          JSON.stringify({ type: "vitals_created", data: newVitals }),
+        );
+      }
+    }
+  } catch (err) {
+    res.status(500).json("500 Internal Server Error");
+  }
+});
+
 // app.post("/patient", async (req, res) => {
 //   const obj = VitalsSchema.safeParse(req.body);
 

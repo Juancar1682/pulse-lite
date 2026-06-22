@@ -42,3 +42,9 @@ export $(grep -v '^#' .env | xargs)
 psql $DATABASE_URL -f schema.sql
 
 ALTER TABLE modifies an existing table's structure without touching its data — used ALTER COLUMN time_reading SET DEFAULT NOW() to add a default timestamp to vitals_readings.
+
+Always re-read the commit message before pushing. The message is the only memory of what the commit did.
+
+Took ownership of what to fix first in this case restructuring the vitalsSchema into 2: patientsSchema and VitalsSchema that way i have a user and its id with its dob and that table can talk to the VitalsSchema. Became the PatientScheam doesn't change while the vitals do.
+
+In Express, res.status().json() does not end execution. Guard clauses need return res.status(400).json(...) or the function continues running.
