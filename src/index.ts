@@ -173,27 +173,63 @@ app.get("/vitals", async (req, res) =>
   res.json((await pool.query('SELECT * from "vitals"')).rows),
 );
 
-app.put("/patient/:id", async (req, res) => {
-  const patientId = req.params.id;
+app.put("patient/:id", async (req, res) => {
+  const patientId = Number(req.params.id);
+  if (isNaN(patientId)) {
+    return res.status(400).json("Invalid patient ID");
+  }
+
+  const obj = PatientSchema.safeParse(req.body);
+  if (obj.success === false) {
+    return res.status(400).json("Invalid input data");
+  }
+
+  const { name, dob } = obj.data;
+
+  try {
+    const updatePatient = (
+      await pool.query(
+        `UPDATE "Patients"
+        SET
+        "name" = $1
+        "dob" = $2
+        RETURNING *`,
+        [name, dob],
+      )
+    ).rows[0];
+    res.json(updatePatient);
+    for (const client of wss.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(JSON.stringify({ type: "updated", data: updatePatient }));
+      }
+    }
+  } catch (err) {
+    res.status(500).json("500 Internal Server Error");
+  }
+});
+
+app.put("/patients/:id", async (req, res) => {
+  const patientId = Number(req.params.id);
+  if (isNaN(patientId)) {
+    return res.status(400).json("Invalid patient ID");
+  }
   const obj = VitalsSchema.safeParse(req.body);
   if (obj.success === false) {
     return res.status(400).json("Invalid Input Data");
   }
-  const { name, age, consciousness, bp, heartRate, bloodOxygen } = obj.data;
+  const { consciousness, bp, heartRate, bloodOxygen } = obj.data;
   try {
     const updatePatient = (
       await pool.query(
         `UPDATE "vitals"
-        SET 
-        "name" = $1, 
-        "age" = $2, 
+        SET  
         "consciousness" = $3, 
         "bp" = $4, 
         "heartRate" = $5, 
         "bloodOxygen" = $6
         WHERE id = $7
         RETURNING *`,
-        [name, age, consciousness, bp, heartRate, bloodOxygen, patientId],
+        [consciousness, bp, heartRate, bloodOxygen, patientId],
       )
     ).rows[0];
     res.json(updatePatient);
@@ -208,7 +244,10 @@ app.put("/patient/:id", async (req, res) => {
 });
 
 app.delete("/patient/:id", async (req, res) => {
-  const paramsId = req.params.id;
+  const paramsId = Number(req.params.id);
+  if (isNaN(paramsId)) {
+    return res.status(400).json("Invalid patient ID");
+  }
   try {
     const deletePatient = (
       await pool.query(
