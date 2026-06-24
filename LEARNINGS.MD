@@ -50,3 +50,5 @@ Took ownership of what to fix first in this case restructuring the vitalsSchema 
 In Express, res.status().json() does not end execution. Guard clauses need return res.status(400).json(...) or the function continues running.
 
 Done is when the project passes audit and tells a credible story. Anything beyond that is procrastination dressed as polish.
+
+SQL NULL means 'unknown,' not 'no value.' Comparing anything to NULL returns NULL, not true/false. Use IS NULL / IS NOT NULL for nullable columns — = NULL silently returns zero rows with no error.

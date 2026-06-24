@@ -50,9 +50,16 @@ type Vitals = z.infer<typeof VitalsSchema>;
 app.use(express.json());
 app.use(cors());
 
-app.get("/vitals", async (req, res) =>
-  res.json((await pool.query('SELECT * from "vitals"')).rows),
-);
+app.get("/patients", async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * from patients WHERE deleted_at IS NULL",
+    );
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json("500 Internal Server Error");
+  }
+});
 
 app.post("/patients", async (req, res) => {
   const obj = PatientSchema.safeParse(req.body);
