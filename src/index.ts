@@ -50,6 +50,10 @@ type Vitals = z.infer<typeof VitalsSchema>;
 app.use(express.json());
 app.use(cors());
 
+app.get("/vitals", async (req, res) =>
+  res.json((await pool.query('SELECT * from "vitals"')).rows),
+);
+
 app.post("/patients", async (req, res) => {
   const obj = PatientSchema.safeParse(req.body);
 
@@ -74,7 +78,9 @@ app.post("/patients", async (req, res) => {
     res.json(newPatient);
     for (const client of wss.clients) {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({ type: "created", data: newPatient }));
+        client.send(
+          JSON.stringify({ type: "patient_created", data: newPatient }),
+        );
       }
     }
   } catch (err) {
@@ -128,50 +134,6 @@ app.post("/patients/:id/readings", async (req, res) => {
     res.status(500).json("500 Internal Server Error");
   }
 });
-
-// app.post("/patient", async (req, res) => {
-//   const obj = VitalsSchema.safeParse(req.body);
-
-//   if (obj.success === false) {
-//     return res.status(400).json("Invalid field input");
-//   }
-//   const { name, age, consciousness, bp, heartRate, bloodOxygen } = obj.data;
-//   try {
-//     const newPatient = (
-//       await pool.query(
-//         `INSERT INTO "vitals" (
-//         "name",
-//         "age",
-//         "consciousness",
-//         "bp",
-//         "heartRate",
-//         "bloodOxygen" )
-//        VALUES(
-//        $1,
-//        $2,
-//        $3,
-//        $4,
-//        $5,
-//        $6
-//     )
-//     RETURNING *`,
-//         [name, age, consciousness, bp, heartRate, bloodOxygen],
-//       )
-//     ).rows[0];
-//     res.json(newPatient);
-//     for (const client of wss.clients) {
-//       if (client.readyState === WebSocket.OPEN) {
-//         client.send(JSON.stringify({ type: "created", data: newPatient }));
-//       }
-//     }
-//   } catch (err) {
-//     res.status(500).json("500 Internal Server Error");
-//   }
-// });
-
-app.get("/vitals", async (req, res) =>
-  res.json((await pool.query('SELECT * from "vitals"')).rows),
-);
 
 app.put("/patients/:id", async (req, res) => {
   const patientId = Number(req.params.id);
@@ -243,33 +205,6 @@ app.put("/patients/:id", async (req, res) => {
     }
   } catch (err) {
     res.status(500).json("500 Internal Server Error");
-  }
-});
-
-app.delete("/patients/:id", async (req, res) => {
-  const paramsId = Number(req.params.id);
-  if (isNaN(paramsId)) {
-    return res.status(400).json("Invalid patient ID");
-  }
-  try {
-    const deletePatient = (
-      await pool.query(
-        `UPDATE "patients"
-        SET
-        "deleted_at" = NOW()
-            WHERE id = $1
-            RETURNING *`,
-        [paramsId],
-      )
-    ).rows[0];
-    res.json(deletePatient);
-    for (const client of wss.clients) {
-      if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({ type: "deleted", data: paramsId }));
-      }
-    }
-  } catch (err) {
-    res.status(500).json("500 Internal Server Eror");
   }
 });
 
