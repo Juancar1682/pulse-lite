@@ -173,7 +173,7 @@ app.get("/vitals", async (req, res) =>
   res.json((await pool.query('SELECT * from "vitals"')).rows),
 );
 
-app.put("patient/:id", async (req, res) => {
+app.put("/patients/:id", async (req, res) => {
   const patientId = Number(req.params.id);
   if (isNaN(patientId)) {
     return res.status(400).json("Invalid patient ID");
@@ -189,18 +189,21 @@ app.put("patient/:id", async (req, res) => {
   try {
     const updatePatient = (
       await pool.query(
-        `UPDATE "Patients"
+        `UPDATE "patients"
         SET
-        "name" = $1
+        "name" = $1,
         "dob" = $2
+        WHERE "id" = $3
         RETURNING *`,
-        [name, dob],
+        [name, dob, patientId],
       )
     ).rows[0];
     res.json(updatePatient);
     for (const client of wss.clients) {
       if (client.readyState === WebSocket.OPEN) {
-        client.send(JSON.stringify({ type: "updated", data: updatePatient }));
+        client.send(
+          JSON.stringify({ type: "patient_updated", data: updatePatient }),
+        );
       }
     }
   } catch (err) {
@@ -243,7 +246,7 @@ app.put("/patients/:id", async (req, res) => {
   }
 });
 
-app.delete("/patient/:id", async (req, res) => {
+app.delete("/patients/:id", async (req, res) => {
   const paramsId = Number(req.params.id);
   if (isNaN(paramsId)) {
     return res.status(400).json("Invalid patient ID");
@@ -251,7 +254,9 @@ app.delete("/patient/:id", async (req, res) => {
   try {
     const deletePatient = (
       await pool.query(
-        `DELETE from "vitals"
+        `UPDATE "patients"
+        SET
+        "deleted_at" = NOW()
             WHERE id = $1
             RETURNING *`,
         [paramsId],
@@ -265,5 +270,40 @@ app.delete("/patient/:id", async (req, res) => {
     }
   } catch (err) {
     res.status(500).json("500 Internal Server Eror");
+  }
+});
+
+app.delete("/patients/:id", async (req, res) => {
+  const paramsId = Number(req.params.id);
+
+  if (isNaN(paramsId)) {
+    return res.status(400).json("Invalid patient ID");
+  }
+
+  try {
+    const deletePatient = (
+      await pool.query(
+        `UPDATE patients
+      SET
+      "deleted_at" = NOW()
+      WHERE id = $1
+      RETURNING *`,
+        [paramsId],
+      )
+    ).rows[0];
+
+    if (!deletePatient) {
+      return res.status(404).json("Patient not found");
+    }
+    res.json(deletePatient);
+    for (const client of wss.clients) {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(
+          JSON.stringify({ type: "patient_deleted", data: deletePatient }),
+        );
+      }
+    }
+  } catch (error) {
+    res.status(500).json("500 Internal Server Error");
   }
 });
